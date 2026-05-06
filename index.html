@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" x-data="hubApp()" :class="theme" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,430 +7,542 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <style>
     :root {
       --bg: #121110;
-      --surface: #1a1917;
+      --surface: #1c1b19;
+      --surface2: #222120;
       --text: #cdccca;
       --primary: #4f98a3;
-      --muted: #9a978f;
-      --border: rgba(205, 204, 202, 0.14);
+      --primary-dim: rgba(79,152,163,0.15);
+      --muted: #8a8780;
+      --faint: #4a4947;
+      --border: rgba(205,204,202,0.11);
       --radius: 14px;
-      --shadow: 0 8px 20px rgba(0,0,0,0.25);
-      --space-1: 0.5rem;
-      --space-2: 0.75rem;
-      --space-3: 1rem;
-      --space-4: 1.5rem;
-      --space-5: 2rem;
-      --space-6: 3rem;
-      --display: "Instrument Serif", serif;
-      --body: "Inter", sans-serif;
+      --shadow: 0 8px 24px rgba(0,0,0,0.35);
+      --transition: 220ms cubic-bezier(0.16,1,0.3,1);
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'Inter', sans-serif;
     }
-
-    .light {
+    .theme-light {
       --bg: #f7f6f2;
       --surface: #f9f8f5;
+      --surface2: #f0ede8;
       --text: #28251d;
       --primary: #01696f;
-      --muted: #70695c;
-      --border: rgba(40, 37, 29, 0.12);
-      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --primary-dim: rgba(1,105,111,0.1);
+      --muted: #706960;
+      --faint: #c0bdb8;
+      --border: rgba(40,37,29,0.1);
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
     }
-
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      margin: 0;
-      font-family: var(--body);
+      font-family: var(--font-body);
       background: var(--bg);
       color: var(--text);
-      line-height: 1.5;
+      line-height: 1.55;
+      min-height: 100dvh;
+      transition: background var(--transition), color var(--transition);
     }
-
     .container { width: min(1180px, 100% - 2rem); margin-inline: auto; }
-    .surface {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
+    .surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 
+    /* NAV */
     header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      backdrop-filter: blur(8px);
-      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
       border-bottom: 1px solid var(--border);
     }
+    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 0; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--text); font-family: var(--font-display); font-size: 1.45rem; }
+    nav { display: flex; align-items: center; gap: 0.25rem; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.7rem; border-radius: 8px; transition: color var(--transition), background var(--transition); }
+    nav a:hover { color: var(--text); background: var(--primary-dim); }
+    .toggle { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 0.45rem 0.9rem; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: background var(--transition), border-color var(--transition); }
+    .toggle:hover { border-color: var(--primary); }
+    .mobile-nav { display: none; }
 
-    .nav-wrap { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 0; gap: 1rem; }
-    .brand { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; color: var(--text); }
-    .brand span { font-family: var(--display); font-size: 1.5rem; letter-spacing: 0.01em; }
-
-    nav ul { display: none; list-style: none; margin: 0; padding: 0; gap: 1rem; }
-    nav a { color: var(--text); text-decoration: none; font-size: 0.95rem; opacity: 0.9; }
-    nav a:hover { color: var(--primary); }
-
-    .toggle {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 0.5rem 0.85rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .hero { padding: var(--space-6) 0 var(--space-5); }
-    h1 { font-family: var(--display); font-size: clamp(2.1rem, 5vw, 4rem); margin: 0 0 var(--space-2); }
-    .sub { color: var(--muted); margin-bottom: var(--space-4); max-width: 760px; }
+    /* HERO */
+    .hero { padding: 4rem 0 2.5rem; }
+    h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 4.2rem); line-height: 1.1; margin-bottom: 0.75rem; }
+    .hero-sub { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.75rem; max-width: 640px; }
+    .stats-row { display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .stat { display: flex; flex-direction: column; gap: 0.15rem; }
+    .stat-n { font-family: var(--font-display); font-size: 1.8rem; color: var(--text); line-height: 1; }
+    .stat-l { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
     .search {
-      width: 100%;
-      border-radius: 12px;
+      width: 100%; border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text);
-      padding: 0.9rem 1rem;
-      font-size: 1rem;
+      padding: 0.9rem 1rem 0.9rem 2.75rem;
+      font-size: 1rem; font-family: var(--font-body);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
     }
+    .search:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-dim); }
+    .search::placeholder { color: var(--faint); }
 
-    section { padding: var(--space-5) 0; }
-    h2 { font-family: var(--display); font-size: clamp(1.7rem, 3vw, 2.4rem); margin: 0 0 var(--space-3); }
+    /* SECTIONS */
+    section { padding: 2.5rem 0; }
+    h2 { font-family: var(--font-display); font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: 0.4rem; }
+    .section-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 2rem; }
 
-    .tabs { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-bottom: var(--space-3); }
-    .tab {
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      padding: 0.48rem 0.8rem;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
+    /* TABS */
+    .tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .tab { border: 1px solid var(--border); background: transparent; color: var(--muted); padding: 0.42rem 0.9rem; border-radius: 999px; cursor: pointer; font-size: 0.85rem; font-family: var(--font-body); transition: all var(--transition); }
+    .tab:hover { color: var(--text); border-color: var(--text); }
     .tab.active { background: var(--primary); color: #fff; border-color: transparent; }
 
-    .grid { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
-    .card {
-      padding: var(--space-3);
-      transition: transform .25s ease, box-shadow .25s ease, opacity .3s;
-      opacity: 0;
-      transform: translateY(20px);
+    /* PRESENTATION GRID */
+    .pres-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+    .pres-card { padding: 0; overflow: hidden; transition: transform var(--transition), box-shadow var(--transition); cursor: pointer; }
+    .pres-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .pres-cover {
+      height: 156px; position: relative; overflow: hidden;
+      display: flex; align-items: flex-end;
     }
-    .card.revealed { opacity: 1; transform: translateY(0); }
-    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-    .thumb { height: 120px; border-radius: 10px; margin-bottom: 0.8rem; }
-    .meta { display: flex; justify-content: space-between; gap: .5rem; color: var(--muted); font-size: .9rem; }
-    .badge { border: 1px solid var(--border); border-radius: 999px; padding: 0.12rem 0.55rem; }
-    .btn {
-      margin-top: 0.85rem;
-      display: inline-block;
-      text-decoration: none;
-      background: var(--primary);
-      color: #fff;
-      padding: 0.5rem 0.85rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: .9rem;
+    .pres-cover-inner { position: absolute; inset: 0; }
+    .pres-cover-label {
+      position: relative; z-index: 1; padding: 1rem;
+      font-family: var(--font-display); font-size: 1.1rem; line-height: 1.25;
+      color: rgba(255,255,255,0.92); text-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
+    .pres-body { padding: 0.85rem 1rem 1rem; }
+    .pres-meta { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+    .badge { font-size: 0.78rem; padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+    .pres-year { font-size: 0.8rem; color: var(--faint); }
+    .btn-dl { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; background: var(--primary); color: #fff; padding: 0.48rem 0.9rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; border: none; cursor: pointer; font-family: var(--font-body); transition: opacity var(--transition); }
+    .btn-dl:hover { opacity: 0.85; }
+    .btn-dl svg { flex-shrink: 0; }
 
-    .calendar-wrap { display: grid; gap: var(--space-3); }
-    .calendar { padding: var(--space-3); }
-    .cal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; }
-    .arrow { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 8px; padding: 0.35rem 0.55rem; cursor: pointer; }
-    .weekday, .day { text-align: center; font-size: .85rem; }
-    .cal-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap: 0.35rem; }
-    .weekday { color: var(--muted); padding: .35rem 0; }
+    /* EVENTS */
+    .cal-wrap { display: grid; gap: 1.25rem; }
+    .calendar { padding: 1.25rem; }
+    .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .cal-title { font-family: var(--font-display); font-size: 1.1rem; }
+    .arrow { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 8px; padding: 0.3rem 0.6rem; cursor: pointer; font-size: 1rem; line-height: 1; transition: background var(--transition); }
+    .arrow:hover { background: var(--primary-dim); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.25rem; }
+    .wd { text-align: center; font-size: 0.75rem; color: var(--muted); padding: 0.3rem 0; font-weight: 500; }
     .day {
-      padding: 0.6rem 0;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--text);
-      position: relative;
-      cursor: pointer;
+      text-align: center; padding: 0.55rem 0; border-radius: 8px;
+      border: 1px solid transparent; background: transparent;
+      color: var(--text); font-size: 0.85rem; cursor: pointer; position: relative;
+      transition: background var(--transition), border-color var(--transition);
     }
-    .day.muted { color: var(--muted); opacity: .5; cursor: default; }
-    .day.has-event::after {
-      content: "";
-      position: absolute;
-      bottom: 6px;
-      left: 50%;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--primary);
-      transform: translateX(-50%);
+    .day:hover:not(:disabled) { background: var(--primary-dim); }
+    .day.dim { color: var(--faint); cursor: default; }
+    .day.has-evt::after {
+      content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+      width: 5px; height: 5px; border-radius: 50%; background: var(--primary);
     }
-    .day.selected { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 16%, transparent); }
+    .day.sel { border-color: var(--primary); background: var(--primary-dim); font-weight: 600; }
+    .day.today { color: var(--primary); font-weight: 700; }
+    .events-panel { padding: 1.25rem; }
+    .events-panel h3 { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 1rem; }
+    .ev-item { padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
+    .ev-item:last-child { border-bottom: 0; }
+    .ev-date { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .ev-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.15rem; }
+    .ev-loc { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; }
+    .ev-format { display: inline-block; font-size: 0.72rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--primary-dim); color: var(--primary); margin-left: 0.4rem; }
 
-    .events-list { padding: var(--space-3); }
-    .event-item { padding: .75rem 0; border-bottom: 1px solid var(--border); }
-    .event-item:last-child { border-bottom: 0; }
-    .event-date { color: var(--muted); font-size: .9rem; }
-
-    .list { padding: var(--space-2) 0; }
-    .row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: .5rem;
-      align-items: center;
-      padding: .85rem 1rem;
-      margin-bottom: .55rem;
+    /* ARTICLES LIST */
+    .articles-list { display: flex; flex-direction: column; gap: 0; }
+    .art-item {
+      display: grid; grid-template-columns: 1fr;
+      gap: 0.4rem; padding: 1rem; margin-bottom: 0.6rem;
+      transition: transform var(--transition);
     }
-    .tag { font-size: .85rem; color: var(--primary); }
-    .link { color: var(--text); text-decoration: none; font-weight: 600; }
+    .art-item:hover { transform: translateX(4px); }
+    .art-date { font-size: 0.8rem; color: var(--muted); }
+    .art-title { font-weight: 600; font-size: 0.97rem; }
+    .art-desc { font-size: 0.85rem; color: var(--muted); }
+    .art-tag { font-size: 0.75rem; color: var(--primary); border: 1px solid var(--primary-dim); padding: 0.1rem 0.55rem; border-radius: 999px; display: inline-block; margin-top: 0.2rem; }
+    .art-link { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.2rem; transition: color var(--transition); }
+    .art-link:hover { color: var(--primary); }
 
-    footer { border-top: 1px solid var(--border); padding: 1.5rem 0 2rem; margin-top: 1.5rem; color: var(--muted); }
+    /* PODCASTS */
+    .pod-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .pod-card { display: flex; gap: 1rem; padding: 1rem; align-items: flex-start; transition: transform var(--transition); }
+    .pod-card:hover { transform: translateY(-2px); }
+    .pod-cover {
+      width: 72px; height: 72px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pod-info { flex: 1; min-width: 0; }
+    .pod-ep { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+    .pod-title { font-weight: 600; font-size: 0.95rem; line-height: 1.35; margin-bottom: 0.35rem; }
+    .pod-meta { display: flex; gap: 0.75rem; font-size: 0.78rem; color: var(--muted); align-items: center; }
+    .pod-play { background: var(--primary); color: #fff; border: none; border-radius: 999px; padding: 0.35rem 0.8rem; cursor: pointer; font-size: 0.8rem; font-family: var(--font-body); font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; transition: opacity var(--transition); }
+    .pod-play:hover { opacity: 0.85; }
 
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 0 2.5rem; margin-top: 2rem; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--primary); }
+    .footer-copy { font-size: 0.82rem; color: var(--faint); }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (min-width: 640px) {
+      .pres-grid { grid-template-columns: repeat(2, 1fr); }
+      .pod-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (min-width: 768px) {
-      nav ul { display: flex; }
-      .grid { grid-template-columns: repeat(2, 1fr); }
-      .calendar-wrap { grid-template-columns: 2fr 1fr; }
-      .row { grid-template-columns: 140px 1fr 140px auto; }
+      nav { display: flex; }
+      .mobile-nav { display: none; }
+      .cal-wrap { grid-template-columns: 3fr 2fr; }
+      .art-item { grid-template-columns: 110px 1fr auto auto; gap: 1rem; align-items: center; }
     }
     @media (min-width: 1024px) {
-      .grid { grid-template-columns: repeat(3, 1fr); }
+      .pres-grid { grid-template-columns: repeat(3, 1fr); }
+      .pod-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 767px) {
+      nav { display: none; }
+      .stats-row { gap: 1.25rem; }
     }
   </style>
 </head>
 <body>
+
+<div x-data="app()" :class="darkMode ? '' : 'theme-light'" style="min-height:100dvh">
+
   <header>
     <div class="container nav-wrap">
-      <a href="#hero" class="brand">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <a href="#top" class="brand">
+        <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
           <rect x="2" y="2" width="24" height="24" rx="7" stroke="var(--primary)" stroke-width="2"/>
           <path d="M8 17L12 10L16 17L20 10" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Ви.Тех</span>
+        Ви.Тех
       </a>
       <nav>
-        <ul>
-          <li><a href="#presentations">Презентации</a></li>
-          <li><a href="#events">Мероприятия</a></li>
-          <li><a href="#articles">Статьи</a></li>
-          <li><a href="#articles">Подкасты</a></li>
-        </ul>
+        <a href="#presentations">Презентации</a>
+        <a href="#events">Мероприятия</a>
+        <a href="#articles">Статьи</a>
+        <a href="#podcasts">Подкасты</a>
       </nav>
-      <button class="toggle" @click="toggleTheme()" x-text="theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'"></button>
+      <button class="toggle" @click="darkMode = !darkMode" x-text="darkMode ? '☀ Светлая' : '🌙 Тёмная'"></button>
     </div>
   </header>
 
   <main>
-    <section id="hero" class="hero container">
-      <h1>Артефакты технобренда</h1>
-      <p class="sub">Презентации, доклады, статьи и подкасты команды Ви.Тех</p>
-      <input class="search" type="search" placeholder="Поиск по всем материалам..." x-model.trim="search" />
+
+    <!-- HERO -->
+    <section id="top" class="hero container">
+      <div class="reveal">
+        <h1>Артефакты<br><em style="font-style:italic;color:var(--primary)">технобренда</em></h1>
+        <p class="hero-sub">Презентации, доклады, статьи и подкасты инженерной команды Ви.Тех — всё в одном месте.</p>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-n">48</span><span class="stat-l">Презентаций</span></div>
+          <div class="stat"><span class="stat-n">12</span><span class="stat-l">Мероприятий</span></div>
+          <div class="stat"><span class="stat-n">94</span><span class="stat-l">Статей</span></div>
+          <div class="stat"><span class="stat-n">31</span><span class="stat-l">Подкастов</span></div>
+        </div>
+        <div class="search-wrap">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="search" type="search" placeholder="Поиск по всем материалам..." x-model.debounce.200ms="q" />
+        </div>
+      </div>
     </section>
 
+    <!-- PRESENTATIONS -->
     <section id="presentations" class="container">
       <h2>Презентации</h2>
+      <p class="section-sub">Слайды с конференций, митапов и внутренних сессий</p>
+      <hr class="section-divider">
       <div class="tabs">
-        <template x-for="tab in presentationTabs" :key="tab">
-          <button class="tab" :class="{'active': presentationFilter === tab}" @click="presentationFilter = tab" x-text="tab"></button>
-        </template>
+        <template x-for="t in presTabs" :key="t"><button class="tab" :class="{active: presTab===t}" @click="presTab=t" x-text="t"></button></template>
       </div>
-      <div class="grid">
-        <template x-for="item in filteredPresentations" :key="item.title">
-          <article class="surface card reveal-item" x-show="matchesSearch(item)" x-transition>
-            <div class="thumb" :style="`background:${item.color}`"></div>
-            <h3 x-text="item.title"></h3>
-            <div class="meta">
-              <span class="badge" x-text="item.type"></span>
-              <span x-text="item.year"></span>
+      <div class="pres-grid">
+        <template x-for="p in filteredPres" :key="p.id">
+          <article class="surface pres-card reveal" x-show="matchQ(p)">
+            <div class="pres-cover" :style="`background:${p.bg}`">
+              <svg class="pres-cover-inner" viewBox="0 0 360 156" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <rect width="360" height="156" :fill="p.bg"/>
+                <circle :cx="p.cx" :cy="p.cy" r="90" :fill="p.c2" opacity="0.35"/>
+                <text x="20" y="44" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.25)" x-text="p.code"></text>
+                <rect x="20" y="118" width="60" height="4" rx="2" fill="rgba(255,255,255,0.25)"/>
+                <rect x="20" y="128" width="40" height="3" rx="2" fill="rgba(255,255,255,0.15)"/>
+              </svg>
+              <div class="pres-cover-label" x-text="p.title"></div>
             </div>
-            <a href="#" class="btn">Скачать</a>
+            <div class="pres-body">
+              <div class="pres-meta">
+                <span class="badge" x-text="p.type"></span>
+                <span class="pres-year" x-text="p.year"></span>
+              </div>
+              <button class="btn-dl">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Скачать PDF
+              </button>
+            </div>
           </article>
         </template>
       </div>
     </section>
 
+    <!-- EVENTS -->
     <section id="events" class="container">
       <h2>Мероприятия</h2>
-      <div class="calendar-wrap">
-        <div class="surface calendar">
+      <p class="section-sub">Конференции, митапы и воркшопы Ви.Тех</p>
+      <hr class="section-divider">
+      <div class="cal-wrap">
+        <div class="surface calendar reveal">
           <div class="cal-head">
-            <button class="arrow" @click="changeMonth(-1)">←</button>
-            <strong x-text="monthLabel"></strong>
-            <button class="arrow" @click="changeMonth(1)">→</button>
+            <button class="arrow" @click="prevMonth()">←</button>
+            <span class="cal-title" x-text="calTitle"></span>
+            <button class="arrow" @click="nextMonth()">→</button>
           </div>
           <div class="cal-grid">
-            <template x-for="w in weekdays"><div class="weekday" x-text="w"></div></template>
-            <template x-for="day in calendarDays" :key="day.key">
-              <button class="day" :disabled="!day.currentMonth" :class="{ 'muted': !day.currentMonth, 'has-event': day.hasEvent, 'selected': selectedDate === day.dateStr }" @click="selectDay(day)">
-                <span x-text="day.day"></span>
+            <template x-for="w in ['Пн','Вт','Ср','Чт','Пт','Сб','Вс']" :key="w">
+              <div class="wd" x-text="w"></div>
+            </template>
+            <template x-for="d in calDays" :key="d.k">
+              <button class="day"
+                :class="{dim: !d.cur, 'has-evt': d.hasEv, sel: selDate===d.ds, today: d.isToday}"
+                :disabled="!d.cur"
+                @click="d.cur && (selDate = d.ds)">
+                <span x-text="d.n"></span>
               </button>
             </template>
           </div>
         </div>
-        <aside class="surface events-list">
-          <h3>Ближайшие события</h3>
-          <template x-for="event in sidebarEvents" :key="event.title + event.date">
-            <div class="event-item">
-              <div class="event-date" x-text="formatDate(event.date)"></div>
-              <div><strong x-text="event.title"></strong></div>
-              <div x-text="event.location"></div>
+        <div class="surface events-panel reveal">
+          <h3>События</h3>
+          <template x-for="ev in sideEvents" :key="ev.id">
+            <div class="ev-item">
+              <div class="ev-date" x-text="fmt(ev.date)"></div>
+              <div class="ev-title" x-text="ev.title"></div>
+              <div class="ev-loc">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span x-text="ev.loc"></span>
+                <span class="ev-format" x-text="ev.fmt"></span>
+              </div>
             </div>
           </template>
-        </aside>
+        </div>
       </div>
     </section>
 
+    <!-- ARTICLES -->
     <section id="articles" class="container">
-      <h2>Материалы</h2>
+      <h2>Статьи</h2>
+      <p class="section-sub">Технические материалы и инженерный блог Ви.Тех</p>
+      <hr class="section-divider">
       <div class="tabs">
-        <template x-for="type in artifactTypes" :key="type">
-          <button class="tab" :class="{'active': artifactType === type}" @click="artifactType = type" x-text="type"></button>
-        </template>
+        <template x-for="t in artTabs" :key="t"><button class="tab" :class="{active: artTab===t}" @click="artTab=t" x-text="t"></button></template>
       </div>
-      <div class="list">
-        <template x-for="item in filteredArtifacts" :key="item.title">
-          <article class="surface row reveal-item" x-show="matchesSearch(item)">
-            <div x-text="formatDate(item.date)"></div>
-            <div><strong x-text="item.title"></strong></div>
-            <div class="tag" x-text="item.tag"></div>
-            <a class="link" href="#">Читать →</a>
+      <div class="articles-list">
+        <template x-for="a in filteredArts" :key="a.id">
+          <article class="surface art-item reveal" x-show="matchQ(a)">
+            <div class="art-date" x-text="fmt(a.date)"></div>
+            <div>
+              <div class="art-title" x-text="a.title"></div>
+              <div class="art-desc" x-text="a.desc"></div>
+            </div>
+            <span class="art-tag" x-text="a.tag"></span>
+            <a href="#" class="art-link">Читать <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
           </article>
         </template>
       </div>
     </section>
+
+    <!-- PODCASTS -->
+    <section id="podcasts" class="container">
+      <h2>Подкасты</h2>
+      <p class="section-sub">Аудио-контент про инженерную культуру и технологии</p>
+      <hr class="section-divider">
+      <div class="pod-grid">
+        <template x-for="p in filteredPods" :key="p.id">
+          <div class="surface pod-card reveal" x-show="matchQ(p)">
+            <div class="pod-cover" :style="`background:${p.bg}`">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="rgba(255,255,255,0.8)" stroke="none"/></svg>
+            </div>
+            <div class="pod-info">
+              <div class="pod-ep" x-text="'Эпизод ' + p.ep"></div>
+              <div class="pod-title" x-text="p.title"></div>
+              <div class="pod-meta">
+                <span x-text="p.dur"></span>
+                <span>·</span>
+                <span x-text="fmt(p.date)"></span>
+              </div>
+              <button class="pod-play" style="margin-top:0.5rem">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Слушать
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+
   </main>
 
   <footer>
-    <div class="container">
-      <div>Ви.Тех © 2026</div>
-      <div>Технобренд для инженеров</div>
+    <div class="container footer-inner">
+      <div>
+        <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:0.3rem">Ви.Тех</div>
+        <div class="footer-copy">Технобренд для инженеров · 2026</div>
+      </div>
+      <div class="footer-links">
+        <a href="#">Telegram</a>
+        <a href="#">GitHub</a>
+        <a href="#">Habr</a>
+        <a href="#">YouTube</a>
+      </div>
     </div>
   </footer>
 
-  <script>
-    function hubApp() {
-      return {
-        theme: 'dark',
-        search: '',
-        presentationFilter: 'Все',
-        presentationTabs: ['Все', 'Митапы', 'Конференции', 'Внутренние'],
-        artifactType: 'Статьи',
-        artifactTypes: ['Статьи', 'Доклады', 'Подкасты'],
-        weekdays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-        currentDate: new Date(2026, 4, 1),
-        selectedDate: null,
-        presentations: [
-          { title: 'Платформенная инженерия в Ви.Тех', type: 'Внутренние', year: 2026, color: '#345a61' },
-          { title: 'Frontend performance playbook', type: 'Митапы', year: 2026, color: '#3e6a5c' },
-          { title: 'Data Mesh для продуктовых команд', type: 'Конференции', year: 2025, color: '#6a4f7d' },
-          { title: 'Набор и развитие DevRel-команды', type: 'Внутренние', year: 2025, color: '#77533e' },
-          { title: 'Надёжность сервисов: SRE-практики', type: 'Митапы', year: 2026, color: '#2f4f74' },
-          { title: 'Дизайн-системы в enterprise', type: 'Конференции', year: 2024, color: '#4f6f3a' }
-        ],
-        events: [
-          { date: '2026-05-14', title: 'Внутренний Tech Demo Day', location: 'Москва, офис Ви.Тех' },
-          { date: '2026-06-03', title: 'Митап: AI в разработке', location: 'Санкт-Петербург' },
-          { date: '2026-07-18', title: 'Летний Frontend Summit', location: 'Казань' },
-          { date: '2026-09-10', title: 'DevRel Workshop', location: 'Онлайн' },
-          { date: '2026-11-21', title: 'Годовая техконференция Ви.Тех', location: 'Москва' }
-        ],
-        artifacts: {
-          'Статьи': [
-            { date: '2026-01-15', title: 'Как мы ускорили CI на 40%', tag: 'Инфраструктура' },
-            { date: '2026-02-09', title: 'Гайд по архитектуре фронтенд-монорепо', tag: 'Frontend' },
-            { date: '2026-03-01', title: 'Наблюдаемость микросервисов: практики', tag: 'Backend' },
-            { date: '2026-03-20', title: 'Путь инженера в Ви.Тех', tag: 'Культура' },
-            { date: '2026-04-12', title: 'Feature flags без боли', tag: 'Платформа' }
-          ],
-          'Доклады': [
-            { date: '2026-01-28', title: 'Type-safe API контракты', tag: 'Доклад' },
-            { date: '2026-02-18', title: 'Kubernetes в реальных продуктах', tag: 'Доклад' },
-            { date: '2026-03-30', title: 'Edge rendering на практике', tag: 'Доклад' },
-            { date: '2026-04-07', title: 'Zero-downtime релизы', tag: 'Доклад' },
-            { date: '2026-04-29', title: 'Масштабирование команд разработки', tag: 'Доклад' }
-          ],
-          'Подкасты': [
-            { date: '2026-01-10', title: 'Эпизод 1: Карьера staff инженера', tag: 'Подкаст' },
-            { date: '2026-02-22', title: 'Эпизод 2: Переход на микрофронтенды', tag: 'Подкаст' },
-            { date: '2026-03-14', title: 'Эпизод 3: Что такое инженерный бренд', tag: 'Подкаст' },
-            { date: '2026-04-04', title: 'Эпизод 4: Инциденты и postmortem', tag: 'Подкаст' },
-            { date: '2026-04-26', title: 'Эпизод 5: От прототипа к платформе', tag: 'Подкаст' }
-          ]
-        },
-        init() {
-          this.selectedDate = this.events[0].date;
-          this.$nextTick(() => {
-            this.revealOnScroll();
-            this.animateHero();
-          });
-        },
-        toggleTheme() {
-          this.theme = this.theme === 'dark' ? 'light' : 'dark';
-        },
-        matchesSearch(item) {
-          if (!this.search) return true;
-          const q = this.search.toLowerCase();
-          return Object.values(item).join(' ').toLowerCase().includes(q);
-        },
-        get filteredPresentations() {
-          return this.presentations.filter(p => this.presentationFilter === 'Все' || p.type === this.presentationFilter);
-        },
-        get filteredArtifacts() {
-          return (this.artifacts[this.artifactType] || []).filter(a => this.matchesSearch(a));
-        },
-        get monthLabel() {
-          return this.currentDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
-        },
-        get eventDates() {
-          return this.events.map(e => e.date);
-        },
-        get calendarDays() {
-          const y = this.currentDate.getFullYear();
-          const m = this.currentDate.getMonth();
-          const firstDay = new Date(y, m, 1);
-          const lastDay = new Date(y, m + 1, 0);
-          const offset = (firstDay.getDay() + 6) % 7;
-          const days = [];
-          for (let i = 0; i < offset; i++) {
-            days.push({ day: '', currentMonth: false, hasEvent: false, key: `p${i}` });
-          }
-          for (let d = 1; d <= lastDay.getDate(); d++) {
-            const date = new Date(y, m, d);
-            const dateStr = date.toISOString().slice(0, 10);
-            days.push({ day: d, dateStr, currentMonth: true, hasEvent: this.eventDates.includes(dateStr), key: dateStr });
-          }
-          return days;
-        },
-        changeMonth(step) {
-          this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + step, 1);
-        },
-        selectDay(day) {
-          if (!day.currentMonth || !day.hasEvent) return;
-          this.selectedDate = day.dateStr;
-        },
-        get sidebarEvents() {
-          const selected = this.events.filter(e => e.date === this.selectedDate);
-          const upcoming = this.events.filter(e => e.date !== this.selectedDate);
-          return [...selected, ...upcoming].slice(0, 5);
-        },
-        formatDate(date) {
-          return new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-        },
-        revealOnScroll() {
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
-                gsap.fromTo(entry.target, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: 'power2.out' });
-                observer.unobserve(entry.target);
-              }
-            });
-          }, { threshold: 0.15 });
-          document.querySelectorAll('.reveal-item').forEach(el => observer.observe(el));
-        },
-        animateHero() {
-          gsap.from('#hero h1', { y: 24, opacity: 0, duration: 0.8 });
-          gsap.from('#hero .sub', { y: 20, opacity: 0, duration: 0.8, delay: 0.1 });
-          gsap.from('#hero .search', { y: 18, opacity: 0, duration: 0.8, delay: 0.2 });
-        }
+</div><!-- /x-data -->
+
+<script>
+function app() {
+  return {
+    darkMode: true,
+    q: '',
+
+    // ---- PRESENTATIONS ----
+    presTab: 'Все',
+    presTabs: ['Все','Митапы','Конференции','Воркшопы','Внутренние'],
+    pres: [
+      { id:1,  title:'Platform Engineering в Ви.Тех',        type:'Внутренние', year:2026, bg:'#1b4652', c2:'#0f7fa0', cx:300, cy:20,  code:'platform_eng.slide' },
+      { id:2,  title:'Frontend Performance Playbook',         type:'Митапы',     year:2026, bg:'#1e4a38', c2:'#27a065', cx:320, cy:60,  code:'fe_perf.slide' },
+      { id:3,  title:'Data Mesh для продуктовых команд',      type:'Конференции', year:2025, bg:'#38244e', c2:'#7c4dbb', cx:280, cy:30,  code:'data_mesh.slide' },
+      { id:4,  title:'Набор и развитие DevRel-команды',       type:'Воркшопы',    year:2025, bg:'#4a2e1c', c2:'#c7692f', cx:340, cy:70,  code:'devrel_hr.slide' },
+      { id:5,  title:'SRE-практики: надёжность сервисов',    type:'Митапы',     year:2026, bg:'#1a2d4a', c2:'#3a7bd5', cx:290, cy:40,  code:'sre_101.slide' },
+      { id:6,  title:'Дизайн-системы в enterprise',           type:'Конференции', year:2024, bg:'#2d401c', c2:'#6db33f', cx:310, cy:80,  code:'design_sys.slide' },
+      { id:7,  title:'Observability с OpenTelemetry',         type:'Митапы',     year:2026, bg:'#1e3a3a', c2:'#2ba8a8', cx:330, cy:50,  code:'otel_obs.slide' },
+      { id:8,  title:'AI в CI/CD пайплайнах',                type:'Конференции', year:2026, bg:'#2a1a4a', c2:'#8f5fd4', cx:270, cy:35,  code:'ai_cicd.slide' },
+      { id:9,  title:'Архитектура фронтенд-монорепо',         type:'Воркшопы',    year:2025, bg:'#3a2010', c2:'#e07c3a', cx:350, cy:90,  code:'monorepo.slide' },
+      { id:10, title:'Kubernetes: от локалки до прода',       type:'Воркшопы',    year:2025, bg:'#102040', c2:'#3080d0', cx:295, cy:25,  code:'k8s_prod.slide' },
+      { id:11, title:'Zero-downtime деплой: практики',        type:'Внутренние', year:2026, bg:'#1e3020', c2:'#4a9e5c', cx:320, cy:45,  code:'zero_dt.slide' },
+      { id:12, title:'GraphQL vs REST: выбор в 2026',         type:'Митапы',     year:2026, bg:'#3c1e2e', c2:'#c44a8e', cx:285, cy:65,  code:'gql_rest.slide' },
+    ],
+    get filteredPres() {
+      return this.pres.filter(p => (this.presTab === 'Все' || p.type === this.presTab) && this.matchQ(p));
+    },
+
+    // ---- EVENTS ----
+    calYear: 2026, calMonth: 4,
+    selDate: '2026-05-14',
+    events: [
+      { id:1,  date:'2026-05-14', title:'Tech Demo Day',                   loc:'Москва, офис Ви.Тех',    fmt:'Офлайн' },
+      { id:2,  date:'2026-05-27', title:'Frontend Meetup #8',               loc:'Санкт-Петербург',         fmt:'Гибрид' },
+      { id:3,  date:'2026-06-03', title:'Митап: AI в разработке',           loc:'Санкт-Петербург',         fmt:'Офлайн' },
+      { id:4,  date:'2026-06-19', title:'SRE Workshop: Incident Response',  loc:'Онлайн',                  fmt:'Онлайн' },
+      { id:5,  date:'2026-07-05', title:'Data Engineering Meetup',          loc:'Казань',                  fmt:'Офлайн' },
+      { id:6,  date:'2026-07-18', title:'Летний Frontend Summit',           loc:'Казань',                  fmt:'Офлайн' },
+      { id:7,  date:'2026-08-12', title:'DevRel Strategy Workshop',         loc:'Онлайн',                  fmt:'Онлайн' },
+      { id:8,  date:'2026-09-10', title:'DevRel Workshop: Metrics',         loc:'Онлайн',                  fmt:'Онлайн' },
+      { id:9,  date:'2026-09-25', title:'Backend Infra Meetup',             loc:'Москва',                  fmt:'Офлайн' },
+      { id:10, date:'2026-10-15', title:'Platform Engineering Conf',        loc:'Москва, Точка кипения',   fmt:'Офлайн' },
+      { id:11, date:'2026-11-06', title:'Хакатон Ви.Тех #3',               loc:'Москва, офис Ви.Тех',    fmt:'Офлайн' },
+      { id:12, date:'2026-11-21', title:'Годовая техконференция Ви.Тех',   loc:'Москва',                  fmt:'Гибрид' },
+    ],
+    get calTitle() {
+      return new Date(this.calYear, this.calMonth, 1).toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+    },
+    get evDates() { return this.events.map(e => e.date); },
+    get calDays() {
+      const y = this.calYear, m = this.calMonth;
+      const first = new Date(y, m, 1);
+      const last  = new Date(y, m+1, 0);
+      const offset = (first.getDay()+6)%7;
+      const todayStr = new Date().toISOString().slice(0,10);
+      const days = [];
+      for(let i=0;i<offset;i++) days.push({k:'p'+i,n:'',cur:false,hasEv:false,ds:null,isToday:false});
+      for(let d=1;d<=last.getDate();d++){
+        const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        days.push({k:ds,n:d,cur:true,hasEv:this.evDates.includes(ds),ds,isToday:ds===todayStr});
       }
+      return days;
+    },
+    prevMonth() { if(this.calMonth===0){this.calMonth=11;this.calYear--;}else{this.calMonth--;} },
+    nextMonth() { if(this.calMonth===11){this.calMonth=0;this.calYear++;}else{this.calMonth++;} },
+    get sideEvents() {
+      const sel = this.events.filter(e => e.date === this.selDate);
+      const rest = this.events.filter(e => e.date !== this.selDate && e.date >= new Date().toISOString().slice(0,10));
+      return [...sel, ...rest].slice(0,6);
+    },
+
+    // ---- ARTICLES ----
+    artTab: 'Все',
+    artTabs: ['Все','Инфраструктура','Frontend','Backend','Культура','Платформа'],
+    arts: [
+      { id:1,  date:'2026-04-28', title:'Как мы ускорили CI на 40% без боли',                desc:'Детальный разбор узких мест в GitHub Actions и способы их устранения.',                tag:'Инфраструктура' },
+      { id:2,  date:'2026-04-18', title:'Гайд по архитектуре фронтенд-монорепо',            desc:'Turborepo, shared-пакеты, и как не утонуть в зависимостях.',                           tag:'Frontend' },
+      { id:3,  date:'2026-04-05', title:'Observability микросервисов с OpenTelemetry',       desc:'Трейсы, метрики и логи — как объединить их в единый пайплайн.',                       tag:'Backend' },
+      { id:4,  date:'2026-03-22', title:'Путь инженера в Ви.Тех: junior → staff',            desc:'Грейдинг, ожидания и как мы выстраиваем рост внутри команды.',                        tag:'Культура' },
+      { id:5,  date:'2026-03-11', title:'Feature flags без боли: Unleash в проде',           desc:'Схемы, best practices и подводные камни при работе с feature toggles.',               tag:'Платформа' },
+      { id:6,  date:'2026-02-27', title:'Database sharding: наш опыт с PostgreSQL',          desc:'Когда вертикальный скейлинг исчерпан — делимся болью и решениями.',                   tag:'Backend' },
+      { id:7,  date:'2026-02-14', title:'CSS-in-JS в 2026: Emotion vs Linaria vs vanilla',  desc:'Сравнение подходов по перфомансу, DX и бандл-сайзу.',                                tag:'Frontend' },
+      { id:8,  date:'2026-02-03', title:'Инцидент-менеджмент: как мы ввели on-call культуру', desc:'Ротации, runbook-ы и психологическая безопасность в дежурстве.',                    tag:'Культура' },
+      { id:9,  date:'2026-01-22', title:'Terraform module reuse: best practices',             desc:'Как организовать IaC так, чтобы не плакать через полгода.',                           tag:'Инфраструктура' },
+      { id:10, date:'2026-01-10', title:'Наш переход с Jenkins на GitHub Actions',            desc:'Migration path, проблемы secrets management и итоги через 3 месяца.',                 tag:'Инфраструктура' },
+    ],
+    get filteredArts() {
+      return this.arts.filter(a => (this.artTab === 'Все' || a.tag === this.artTab) && this.matchQ(a));
+    },
+
+    // ---- PODCASTS ----
+    pods: [
+      { id:1,  ep:1,  title:'Карьера staff-инженера: зоны ответственности', dur:'48 мин', date:'2026-01-10', bg:'#1b3a52' },
+      { id:2,  ep:2,  title:'Переход на микрофронтенды: ретроспектива',     dur:'55 мин', date:'2026-01-24', bg:'#1e4a38' },
+      { id:3,  ep:3,  title:'Что такое инженерный технобренд',              dur:'41 мин', date:'2026-02-07', bg:'#38244e' },
+      { id:4,  ep:4,  title:'Инциденты и postmortem-культура',              dur:'62 мин', date:'2026-02-21', bg:'#4a2e1c' },
+      { id:5,  ep:5,  title:'От прототипа к платформе: как не сломаться',   dur:'50 мин', date:'2026-03-07', bg:'#1a2d4a' },
+      { id:6,  ep:6,  title:'DevRel изнутри: метрики, контент, комьюнити', dur:'57 мин', date:'2026-03-21', bg:'#2d401c' },
+      { id:7,  ep:7,  title:'AI-инструменты в daily workflow инженера',     dur:'44 мин', date:'2026-04-04', bg:'#1e3a3a' },
+      { id:8,  ep:8,  title:'Нанять сеньора или вырастить мидла?',         dur:'38 мин', date:'2026-04-18', bg:'#2a1a4a' },
+      { id:9,  ep:9,  title:'Kubernetes: операционная зрелость команды',    dur:'67 мин', date:'2026-05-02', bg:'#3a2010' },
+    ],
+    get filteredPods() { return this.pods.filter(p => this.matchQ(p)); },
+
+    // ---- UTILS ----
+    matchQ(item) {
+      if (!this.q) return true;
+      const q = this.q.toLowerCase();
+      return Object.values(item).join(' ').toLowerCase().includes(q);
+    },
+    fmt(d) {
+      return new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
+    },
+
+    init() {
+      // Simple scroll reveal (no GSAP conflict)
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); } });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+      // Hero GSAP animate after fonts/scripts load
+      window.addEventListener('load', () => {
+        if (typeof gsap !== 'undefined') {
+          gsap.from('#top h1', { y:30, opacity:0, duration:0.9, ease:'power3.out' });
+          gsap.from('#top .hero-sub', { y:20, opacity:0, duration:0.8, delay:0.15, ease:'power3.out' });
+          gsap.from('#top .stats-row', { y:16, opacity:0, duration:0.7, delay:0.28, ease:'power3.out' });
+          gsap.from('#top .search-wrap', { y:14, opacity:0, duration:0.7, delay:0.38, ease:'power3.out' });
+        }
+      });
     }
-  </script>
+  }
+}
+</script>
 </body>
 </html>
